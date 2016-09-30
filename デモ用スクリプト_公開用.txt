@@ -1,0 +1,94 @@
+﻿p.39 レコードの取得（クエリ） 基本
+https://<<★ご自身のCRM Online組織名を入れてください★>>.crm7.dynamics.com/api/data/v8.1/accounts?$select=name&$top=3
+
+p.42 抽出条件 標準フィルタ演算子
+accounts?$filter=revenue ge 100000
+
+p.43 抽出条件 標準クエリ関数
+accounts?$select=name&$filter=contains(name, '港')
+
+p.44 Between関数
+accounts?$select=name,numberofemployees&$filter=Microsoft.Dynamics.CRM.Between(PropertyName='numberofemployees',PropertyValues=["5","2000"])
+
+p.45 ソート
+上記に &$orderby=revenue asc を追加。descも。
+
+p.49 ページサイズの指定
+accounts?$select=name
+@odata.nextLinkの値をコピーして再度検索
+
+p.51 件数の取得
+accounts?$select=name&$count=true
+
+p.53 フォーマット済みの値
+accounts?$select=name,revenue
+
+p.55 Lookupフィールドのデータを取得
+incidents(0BBFB84C-464A-E611-80E2-C4346BC42D10)?$select=title,customerid_contact&$expand=customerid_contact($select=fullname,telephone1)
+
+p.57 Lookupフィールドのデータを条件に指定
+accounts?$select=name&$filter=primarycontactid/contactid eq 49B3DA11-630B-E611-80F8-3863BB370038
+
+p.59 関連エンティティのデータを取得
+accounts(d3b2da11-630b-e611-80f8-3863bb370038)?$select=name&$expand=Account_Tasks($select=subject,scheduledstart)
+
+p.61 システムビューを利用
+"自分のアクティブな取引先企業" ビューのIDを取得
+savedqueries?$select=name,savedqueryid&$filter=name eq '自分のアクティブな取引先企業'
+そのビューの定義を利用してクエリをリクエスト
+accounts?savedQuery=
+<<★00000000-0000-0000-00aa-000010001001★>>
+
+p.66 データの作成 - 基本
+POST
+accounts
+{
+  "name": "_Sample Account",
+  "telephone1": "000-0000-0000"
+}
+
+p.67 レコードの作成 – 関連するレコードも作成
+POST
+accounts
+{
+ "name": "_Sample deep insert Account",
+ "primarycontactid":
+ {
+     "firstname": "_名",
+     "lastname": "_姓"
+ },
+ "opportunity_customer_accounts":
+ [
+  {
+      "name": "営業案件 _Sample deep insert Account用",
+      "Opportunity_Tasks":
+      [
+       { "subject": "タスク01" },
+       { "subject": "タスク02" }
+      ]
+  }
+ ]
+}
+
+p.75 Web API 関数の使用 (1/2)
+GET
+incidents(0BBFB84C-464A-E611-80E2-C4346BC42D10)/Microsoft.Dynamics.CRM.CalculateTotalTimeIncident()
+
+p.79 WinOpportunity
+POST
+WinOpportunity
+{
+ "Status": 3,
+ "OpportunityClose": {
+  "subject": "受注した営業案件",
+  "opportunityid@odata.bind": "https://<<★ご自身のCRM Online組織名を入れてください★>>.crm7.dynamics.com/api/data/v8.1/opportunities(6FB4DA11-630B-E611-80F8-3863BB370038)"
+ }
+}
+
+p.80 Web API アクションの使用 (4/4) カスタム アクション（操作）
+POST
+https://<<★ご自身のCRM Online組織名を入れてください★>>.crm7.dynamics.com/api/data/v8.1/contacts(0BA632AE-B736-E611-80E0-C4346BC49F5C)/Microsoft.Dynamics.CRM.new_AddNoteToContact
+{ 
+ "NoteTitle": "重要なこと",
+ "NoteText": "今日、こんなことを聞きました。"
+}
